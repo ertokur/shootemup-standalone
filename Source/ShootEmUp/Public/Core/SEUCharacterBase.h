@@ -52,7 +52,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	UInputAction* JumpAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	UInputAction* SprintAction;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement,	meta = (ClampMin = 0, ClampMax = 1000))
+	float SprintMoveSpeed = 1000;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Movement)
+	bool IsSprint() const;
+
 private:
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void Sprint(const FInputActionValue& Value);
+	
+private:
+	float CachedMaxWalkSpeed = 0;
+	bool PressedSprint = false;
+	bool MovingForward = false;
 };

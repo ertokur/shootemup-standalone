@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 // Sets default values
 ASEUCharacterBase::ASEUCharacterBase()
@@ -23,7 +25,8 @@ ASEUCharacterBase::ASEUCharacterBase()
 void ASEUCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	CachedMaxWalkSpeed = Cast<UCharacterMovementComponent>(GetMovementComponent())->GetMaxSpeed();
 }
 
 // Called every frame
@@ -58,6 +61,12 @@ void ASEUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	InputComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Move);
 	InputComp->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 	InputComp->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	InputComp->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Sprint);
+}
+
+bool ASEUCharacterBase::IsSprint() const
+{
+	return PressedSprint && MovingForward && GetVelocity().Length() > 0;
 }
 
 void ASEUCharacterBase::Look(const FInputActionValue& Value)
@@ -66,7 +75,6 @@ void ASEUCharacterBase::Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -78,18 +86,25 @@ void ASEUCharacterBase::Move(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
+		MovingForward = MovementVector.Y > 0 && FMath::IsNearlyZero(MovementVector.X, 0.2);
+
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
+		
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	
-		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		if (UCharacterMovementComponent* CharMoveComp = Cast<UCharacterMovementComponent>(GetMovementComponent()))
+		{
+			CharMoveComp->MaxWalkSpeed = IsSprint() ? SprintMoveSpeed : CachedMaxWalkSpeed;
+		}
 	}
+}
+void ASEUCharacterBase::Sprint(const FInputActionValue& Value)
+{
+	PressedSprint = Value.Get<bool>();
 }
