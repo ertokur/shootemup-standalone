@@ -10,6 +10,8 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
+class USEUHealthComponent;
+class UTextRenderComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -18,7 +20,6 @@ class SHOOTEMUP_API ASEUCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ASEUCharacterBase();
 
 protected:
@@ -28,15 +29,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	USpringArmComponent* SpringArm;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	USEUHealthComponent* HealthComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	UTextRenderComponent* TextRender;
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
@@ -55,6 +59,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	UInputAction* SprintAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Animation)
+	UAnimMontage* DeathMontage;
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement,	meta = (ClampMin = 0, ClampMax = 1000))
 	float SprintMoveSpeed = 1000;
@@ -66,6 +73,12 @@ private:
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnDeath();
+
+	UFUNCTION()
+	void OnHealthChanged(const float OldHealth, const float NewHealth);
 	
 private:
 	float CachedMaxWalkSpeed = 0;

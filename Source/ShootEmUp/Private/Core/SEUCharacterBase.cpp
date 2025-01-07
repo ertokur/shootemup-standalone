@@ -8,34 +8,41 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Components/TextRenderComponent.h"
+#include "Components/SEUHealthComponent.h"
 
-// Sets default values
 ASEUCharacterBase::ASEUCharacterBase()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
 	SpringArm  = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArm->SetupAttachment(RootComponent);
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComp->AttachToComponent(SpringArm, FAttachmentTransformRules::KeepRelativeTransform);
+
+	HealthComp = CreateDefaultSubobject<USEUHealthComponent>("HealthComponent");
+
+	TextRender = CreateDefaultSubobject<UTextRenderComponent>("TextRender");
+	TextRender->SetupAttachment(RootComponent);
+
+	HealthComp->OnDeath.AddDynamic(this, &ASEUCharacterBase::OnDeath);
 }
 
-// Called when the game starts or when spawned
 void ASEUCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
 	CachedMaxWalkSpeed = Cast<UCharacterMovementComponent>(GetMovementComponent())->GetMaxSpeed();
+
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASEUCharacterBase::OnHealthChanged);
+	OnHealthChanged(0, HealthComp->GetHealth());
 }
 
-// Called every frame
 void ASEUCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void ASEUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -56,7 +63,7 @@ void ASEUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	UEnhancedInputComponent* InputComp = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
 	if (!InputComp) return;
-
+	
 	InputComp->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Look);
 	InputComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Move);
 	InputComp->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
@@ -104,7 +111,26 @@ void ASEUCharacterBase::Move(const FInputActionValue& Value)
 		}
 	}
 }
+
 void ASEUCharacterBase::Sprint(const FInputActionValue& Value)
 {
 	PressedSprint = Value.Get<bool>();
+}
+
+void ASEUCharacterBase::OnDeath()
+{
+	PlayAnimMontage(DeathMontage);
+
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(5.0f);
+
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
+}
+
+void ASEUCharacterBase::OnHealthChanged(const float OldHealth, const float NewHealth)
+{
+	TextRender->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), NewHealth)));
 }

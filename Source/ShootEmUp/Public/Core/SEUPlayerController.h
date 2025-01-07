@@ -15,5 +15,5 @@ class SHOOTEMUP_API ASEUPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
 };
