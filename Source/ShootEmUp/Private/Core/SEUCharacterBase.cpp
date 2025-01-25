@@ -6,10 +6,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/SEUHealthComponent.h"
+#include "Components/SEUWeaponComponent.h"
+#include "Weapon/SEUWeaponBase.h"
 
 ASEUCharacterBase::ASEUCharacterBase()
 {
@@ -19,13 +22,12 @@ ASEUCharacterBase::ASEUCharacterBase()
 	SpringArm->SetupAttachment(RootComponent);
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComp->AttachToComponent(SpringArm, FAttachmentTransformRules::KeepRelativeTransform);
-
+	
 	HealthComp = CreateDefaultSubobject<USEUHealthComponent>("HealthComponent");
+	WeaponComp = CreateDefaultSubobject<USEUWeaponComponent>("WeaponComponent");
 
 	TextRender = CreateDefaultSubobject<UTextRenderComponent>("TextRender");
 	TextRender->SetupAttachment(RootComponent);
-
-	HealthComp->OnDeath.AddDynamic(this, &ASEUCharacterBase::OnDeath);
 }
 
 void ASEUCharacterBase::BeginPlay()
@@ -34,6 +36,8 @@ void ASEUCharacterBase::BeginPlay()
 
 	CachedMaxWalkSpeed = Cast<UCharacterMovementComponent>(GetMovementComponent())->GetMaxSpeed();
 
+	check(HealthComp);
+	HealthComp->OnDeath.AddDynamic(this, &ASEUCharacterBase::OnDeath);
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASEUCharacterBase::OnHealthChanged);
 	OnHealthChanged(0, HealthComp->GetHealth());
 }
@@ -47,6 +51,9 @@ void ASEUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+	check(WeaponComp);
+	
 	if (!InputContext) return;
 	
 	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Cast<APlayerController>(GetController())->Player);
@@ -69,6 +76,9 @@ void ASEUCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	InputComp->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 	InputComp->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	InputComp->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Sprint);
+	InputComp->BindAction(FireAction, ETriggerEvent::Triggered, this, &ASEUCharacterBase::Fire);
+	InputComp->BindAction(SwitchWeaponAction, ETriggerEvent::Triggered, WeaponComp, &USEUWeaponComponent::SwitchWeapon);
+	InputComp->BindAction(ReloadAction, ETriggerEvent::Triggered, WeaponComp, &USEUWeaponComponent::Reload);
 }
 
 bool ASEUCharacterBase::IsSprint() const
@@ -117,11 +127,20 @@ void ASEUCharacterBase::Sprint(const FInputActionValue& Value)
 	PressedSprint = Value.Get<bool>();
 }
 
+void ASEUCharacterBase::Fire(const FInputActionValue& Value)
+{
+	if (!WeaponComp)
+		return;
+
+	Value.Get<bool>() ? WeaponComp->StartFire() : WeaponComp->StopFire();
+}
+
 void ASEUCharacterBase::OnDeath()
 {
 	PlayAnimMontage(DeathMontage);
-
+	WeaponComp->StopFire();
 	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	SetLifeSpan(5.0f);
 
 	if (Controller)

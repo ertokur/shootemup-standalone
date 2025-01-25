@@ -3,6 +3,8 @@
 
 #include "Components/SEUHealthComponent.h"
 
+#include "GameFramework/Character.h"
+
 USEUHealthComponent::USEUHealthComponent()
 {
 }
@@ -50,7 +52,7 @@ void USEUHealthComponent::SetHealth(const float NewHealth)
 
 void USEUHealthComponent::StartHeal()
 {
-	if (!AutoHeal || !GetWorld() || IsDead())
+	if (!AutoHeal || !GetWorld() || IsDead() || !Cast<ACharacter>(GetOwner())->IsLocallyControlled())
 		return;
 	
 	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
