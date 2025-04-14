@@ -27,6 +27,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Health")
 	FORCEINLINE bool IsDead() const { return FMath::IsNearlyEqual(Health, 0.0f); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Health")
+	FORCEINLINE float GetHealthPercent() const { return Health / MaxHealth; }
 	
 	UPROPERTY(BlueprintAssignable, Category="Damage")
 	FOwnerTakeAnyDamageSignature OnOwnerTakeDamage;

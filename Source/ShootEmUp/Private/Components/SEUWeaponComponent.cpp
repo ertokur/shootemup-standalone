@@ -146,22 +146,12 @@ void USEUWeaponComponent::InitAnimNotifies()
 	{
 		EquipFinishedNotify->OnNotifyFinished.AddUObject(this, &USEUWeaponComponent::OnEquipFinished);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Equip anim notify is forgotten to set"));
-		checkNoEntry();
-	}
 	
 	for (auto Iter : StartingWeaponData)
 	{
 		if (auto ReloadFinishedNotify = SEUAnimUtils::FindNotifyByClass<USEUReloadFinishedAnimNotify>(Iter.ReloadAnimMontage))
 		{
 			ReloadFinishedNotify->OnNotifyFinished.AddUObject(this, &USEUWeaponComponent::OnReloadFinished);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Reload anim notify is forgotten to set"));
-			checkNoEntry();
 		}
 	}
 	
