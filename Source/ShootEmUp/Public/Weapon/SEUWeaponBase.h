@@ -26,8 +26,13 @@ public:
 	bool IsClipEmpty() const;
 	bool CanReload() const;
 	void Reload();
+	bool TryToAddAmmo(int32 Amount);
 
 	FClipEmptySignature OnClipEmpty;
+
+	inline FWeaponUIData GetUIData() const { return UIData; }
+
+	inline FAmmoData GetAmmoData() const { return CurrentAmmoData; }
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
@@ -35,6 +40,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Settings)
 	FAmmoData DefaultAmmoData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Settings)
+	FWeaponUIData UIData;
 	
 	virtual void BeginPlay() override;
 

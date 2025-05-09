@@ -29,6 +29,9 @@ public:
 	FORCEINLINE bool IsDead() const { return FMath::IsNearlyEqual(Health, 0.0f); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Health")
+	FORCEINLINE bool IsHealthFull() const { return Health == MaxHealth; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Health")
 	FORCEINLINE float GetHealthPercent() const { return Health / MaxHealth; }
 	
 	UPROPERTY(BlueprintAssignable, Category="Damage")
@@ -39,6 +42,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Damage")
 	FHealthChangedSignature OnHealthChanged;
+
+	bool TryToAddHealth(float HealthAmount);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,15 +53,15 @@ protected:
 	float MaxHealth = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal")
-	bool AutoHeal = true;
+	bool bEnableAutoHeal = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "AutoHeal", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "bEnableAutoHeal", EditConditionHides))
 	float HealRate = 1.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "AutoHeal", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "bEnableAutoHeal", EditConditionHides))
 	float HealDelay = 3.f;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "AutoHeal", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health|Heal", meta = (EditCondition = "bEnableAutoHeal", EditConditionHides))
 	float HealModifier = 1.f;
 	
 private:
@@ -67,6 +72,6 @@ private:
 	UFUNCTION()
 	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 
-	void StartHeal();
+	void TryStartHeal();
 	void OnHealUpdate();
 };

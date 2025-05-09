@@ -25,9 +25,6 @@ ASEUCharacterBase::ASEUCharacterBase()
 	
 	HealthComp = CreateDefaultSubobject<USEUHealthComponent>("HealthComponent");
 	WeaponComp = CreateDefaultSubobject<USEUWeaponComponent>("WeaponComponent");
-
-	TextRender = CreateDefaultSubobject<UTextRenderComponent>("TextRender");
-	TextRender->SetupAttachment(RootComponent);
 }
 
 void ASEUCharacterBase::BeginPlay()
@@ -37,7 +34,12 @@ void ASEUCharacterBase::BeginPlay()
 	CachedMaxWalkSpeed = Cast<UCharacterMovementComponent>(GetMovementComponent())->GetMaxSpeed();
 
 	check(HealthComp);
-	HealthComp->OnDeath.AddDynamic(this, &ASEUCharacterBase::OnDeath);
+
+	if (!HealthComp->OnDeath.IsBound())
+	{
+		HealthComp->OnDeath.AddDynamic(this, &ASEUCharacterBase::OnDeath);
+	}
+	
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASEUCharacterBase::OnHealthChanged);
 	OnHealthChanged(0, HealthComp->GetHealth());
 }
@@ -151,5 +153,4 @@ void ASEUCharacterBase::OnDeath()
 
 void ASEUCharacterBase::OnHealthChanged(const float OldHealth, const float NewHealth)
 {
-	TextRender->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), NewHealth)));
 }

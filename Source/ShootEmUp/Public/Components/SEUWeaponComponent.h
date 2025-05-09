@@ -25,9 +25,17 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	ASEUWeaponBase* GetEquippedWeapon() const { return CurrentWeapon; }
+
+	UFUNCTION(BlueprintCallable)
+	bool GetWeaponUIData(FWeaponUIData& UIData) const;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetWeaponAmmoData(FAmmoData& AmmoData) const;
+
+	bool TryToAddAmmo(int32 Amount);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+	UPROPERTY(EditAnywhere, Category = Weapon)
 	TArray<FWeaponData> StartingWeaponData;
 
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)

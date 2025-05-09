@@ -96,6 +96,40 @@ void USEUWeaponComponent::Reload()
 	OnChangeClip();
 }
 
+bool USEUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const
+{
+	if (CurrentWeapon)
+	{
+		UIData = CurrentWeapon->GetUIData();
+		return true;
+	}
+
+	return false;
+}
+
+bool USEUWeaponComponent::GetWeaponAmmoData(FAmmoData& AmmoData) const
+{
+	if (CurrentWeapon)
+	{
+		AmmoData = CurrentWeapon->GetAmmoData();
+		return true;
+	}
+
+	return false;
+}
+
+bool USEUWeaponComponent::TryToAddAmmo(int32 Amount)
+{
+	bool bResultCondition = false;
+
+	for (const auto& Iter : Weapons)
+	{
+		bResultCondition = Iter->TryToAddAmmo(Amount) || bResultCondition;
+	}
+	
+	return bResultCondition;
+}
+
 void USEUWeaponComponent::AttachWeaponToSocket(ASEUWeaponBase* Weapon, const FName& SocketName)
 {
 	if (!Weapon || !Cast<ACharacter>(GetOwner()))

@@ -17,6 +17,12 @@ class SHOOTEMUP_API ASEUGameHUD : public AHUD
 public:
 	virtual void DrawHUD() override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = UI)
+	TSubclassOf<class USEUPlayerWidget> PlayerHUDClass = nullptr;
+
+	virtual void BeginPlay() override;
+
 private:
 	void DrawCrosshair();
 };

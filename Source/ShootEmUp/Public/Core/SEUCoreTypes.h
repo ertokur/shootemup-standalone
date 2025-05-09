@@ -18,6 +18,18 @@ struct FWeaponData
 };
 
 USTRUCT(BlueprintType)
+struct FWeaponUIData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = UI)
+	TSoftObjectPtr<UTexture2D> WeaponTexture = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = UI)
+	TSoftObjectPtr<UTexture2D> CrosshairTexture = nullptr;
+};
+
+USTRUCT(BlueprintType)
 struct FAmmoData
 {
 	GENERATED_BODY()

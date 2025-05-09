@@ -3,11 +3,26 @@
 
 #include "Core/SEUGameHUD.h"
 #include "Engine/Canvas.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/SEUPlayerWidget.h"
 
 void ASEUGameHUD::DrawHUD()
 {
 	Super::DrawHUD();
-	DrawCrosshair();
+	//DrawCrosshair();
+}
+
+void ASEUGameHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (PlayerHUDClass)
+	{
+		if (const auto PlayerHUD = CreateWidget<USEUPlayerWidget>(GetWorld(), PlayerHUDClass))
+		{
+			PlayerHUD->AddToViewport();
+		}
+	}
 }
 
 void ASEUGameHUD::DrawCrosshair()

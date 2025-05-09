@@ -28,7 +28,11 @@ void ASEURifleWeapon::MakeShot()
 		const FVector TraceEnd = TraceStart + ShootDirection * TraceDistance;
 
 		FCollisionQueryParams Params;
+
+#if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
 		Params.bDebugQuery = true;
+#endif
+
 		Params.AddIgnoredActor(WeaponOwner);
 		
 		FHitResult HitResult;

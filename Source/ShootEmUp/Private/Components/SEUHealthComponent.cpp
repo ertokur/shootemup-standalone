@@ -9,6 +9,17 @@ USEUHealthComponent::USEUHealthComponent()
 {
 }
 
+bool USEUHealthComponent::TryToAddHealth(float HealthAmount)
+{
+	if (!IsDead() && !IsHealthFull() && HealthAmount > 0)
+	{
+		SetHealth(GetHealth() + HealthAmount);
+		return true;
+	}
+	
+	return false;
+}
+
 void USEUHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -16,7 +27,7 @@ void USEUHealthComponent::BeginPlay()
 	check(MaxHealth > 0);
 	
 	SetHealth(MaxHealth);
-	StartHeal();
+	TryStartHeal();
 	
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &USEUHealthComponent::OnTakeAnyDamage);
 }
@@ -42,7 +53,7 @@ void USEUHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, co
 	
 	OnOwnerTakeDamage.Broadcast(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
 
-	StartHeal();
+	TryStartHeal();
 }
 
 void USEUHealthComponent::SetHealth(const float NewHealth)
@@ -52,29 +63,24 @@ void USEUHealthComponent::SetHealth(const float NewHealth)
 	OnHealthChanged.Broadcast(OldHealth, Health);
 }
 
-void USEUHealthComponent::StartHeal()
+void USEUHealthComponent::TryStartHeal()
 {
-	if (!AutoHeal || !GetWorld() || IsDead() || !Cast<ACharacter>(GetOwner())->IsLocallyControlled())
+	if (!bEnableAutoHeal || !GetWorld() || IsDead() || !Cast<ACharacter>(GetOwner())->IsLocallyControlled())
 		return;
 	
 	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
-
-	if (TimerManager.IsTimerActive(HealUpdateTimerHandle))
-	{
-		TimerManager.ClearTimer(HealUpdateTimerHandle);
-	}
-
+	
+	TimerManager.ClearTimer(HealUpdateTimerHandle);
 	TimerManager.SetTimer(HealUpdateTimerHandle, this, &USEUHealthComponent::OnHealUpdate, HealRate, true, HealDelay);
 }
 
 void USEUHealthComponent::OnHealUpdate()
 {
-	if (!AutoHeal || !GetWorld() || IsDead())
+	if (!bEnableAutoHeal || !GetWorld() || IsDead())
 		return;
 	
 	SetHealth(GetHealth()+HealModifier);
-	UE_LOG(LogTemp, Warning, TEXT("HEAL = %f"), Health);
-
+	
 	if (FMath::IsNearlyEqual(GetHealth(), MaxHealth))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(HealUpdateTimerHandle);

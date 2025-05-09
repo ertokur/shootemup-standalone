@@ -32,7 +32,6 @@ void ASEUProjectile::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Normal
 	if (!GetWorld() || !ExplosionParticles)
 		return;
 	
-	UE_LOG(LogTemp, Display, TEXT("OnHit"));
 	OnProjectileHit.Broadcast(SelfActor, OtherActor, NormalImpulse, Hit);
 
 	ProjectileMovement->StopMovementImmediately();

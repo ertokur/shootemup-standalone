@@ -62,7 +62,6 @@ void ASEUWeaponBase::DecreaseAmmo()
 	}
 	
 	CurrentAmmoData.Bullets--;
-	LogAmmo();
 
 	if (IsClipEmpty() && !IsAmmoEmpty())
 	{
@@ -98,6 +97,20 @@ void ASEUWeaponBase::Reload()
 	}
 	
 	CurrentAmmoData.Bullets = DefaultAmmoData.Bullets;
+}
+
+bool ASEUWeaponBase::TryToAddAmmo(int32 Amount)
+{
+	if (Amount > 0)
+	{
+		if (!DefaultAmmoData.bIsInfinite && (CurrentAmmoData.Clips < DefaultAmmoData.Clips))
+		{
+			CurrentAmmoData.Clips = FMath::Clamp(CurrentAmmoData.Clips + Amount, 0, DefaultAmmoData.Clips);
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void ASEUWeaponBase::LogAmmo()
