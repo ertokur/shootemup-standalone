@@ -5,6 +5,13 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Weapon/Components/SEUWeaponFXComponent.h"
+
+
+ASEURifleWeapon::ASEURifleWeapon()
+{
+	WeaponFXComponent = CreateDefaultSubobject<USEUWeaponFXComponent>(TEXT("WeaponFXComponent"));
+}
 
 void ASEURifleWeapon::BeginPlay()
 {
@@ -28,7 +35,8 @@ void ASEURifleWeapon::MakeShot()
 		const FVector TraceEnd = TraceStart + ShootDirection * TraceDistance;
 
 		FCollisionQueryParams Params;
-
+		Params.bReturnPhysicalMaterial = true;
+		
 #if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
 		Params.bDebugQuery = true;
 #endif
@@ -38,13 +46,14 @@ void ASEURifleWeapon::MakeShot()
 		FHitResult HitResult;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params))
 		{
-			DrawDebugLine(GetWorld(), SocketTransform.GetLocation(),  HitResult.ImpactPoint, FColor::Green, false, 0.5f, 0, 1.0f);
-			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 16, FColor::Green, false, 0.5, 0, 1.0f);
+			//DrawDebugLine(GetWorld(), SocketTransform.GetLocation(),  HitResult.ImpactPoint, FColor::Green, false, 0.5f, 0, 1.0f);
+			//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 16, FColor::Green, false, 0.5, 0, 1.0f);
+			WeaponFXComponent->PlayImpactFX(HitResult);
 			MakeDamage(HitResult);
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), TraceEnd, FColor::Red, false, 0.5f, 0, 1.0f);
+			//DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), TraceEnd, FColor::Red, false, 0.5f, 0, 1.0f);
 		}
 
 		DecreaseAmmo();

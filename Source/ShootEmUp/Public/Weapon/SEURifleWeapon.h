@@ -6,11 +6,19 @@
 #include "SEUWeaponBase.h"
 #include "SEURifleWeapon.generated.h"
 
+class USEUWeaponFXComponent;
+
 UCLASS(Blueprintable)
 class SHOOTEMUP_API ASEURifleWeapon : public ASEUWeaponBase
 {
 	GENERATED_BODY()
 
+public:
+	ASEURifleWeapon();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
+	USEUWeaponFXComponent* WeaponFXComponent;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void MakeShot() override;
@@ -24,7 +32,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Settings)
 	float BaseDamage = 10.f;
 	
-private:
 
+	
+private:
+	
 	void MakeDamage(const FHitResult& Hit);
 };

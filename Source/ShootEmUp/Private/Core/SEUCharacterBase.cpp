@@ -139,10 +139,12 @@ void ASEUCharacterBase::Fire(const FInputActionValue& Value)
 
 void ASEUCharacterBase::OnDeath()
 {
-	PlayAnimMontage(DeathMontage);
+	//PlayAnimMontage(DeathMontage);
 	WeaponComp->StopFire();
 	GetCharacterMovement()->DisableMovement();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 	SetLifeSpan(5.0f);
 
 	if (Controller)

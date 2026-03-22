@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Weapon/Components/SEUWeaponFXComponent.h"
 
 ASEUProjectile::ASEUProjectile()
 {
@@ -15,9 +16,12 @@ ASEUProjectile::ASEUProjectile()
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	CollisionComp->SetCollisionResponseToChannels(ECollisionResponse::ECR_Block);
 	CollisionComp->IgnoreActorWhenMoving(GetOwner(), true);
+	
 	RootComponent = CollisionComp;
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+
+	WeaponFXComponent = CreateDefaultSubobject<USEUWeaponFXComponent>(TEXT("WeaponFXComponent"));
 }
 
 void ASEUProjectile::BeginPlay()
@@ -29,17 +33,17 @@ void ASEUProjectile::BeginPlay()
 
 void ASEUProjectile::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!GetWorld() || !ExplosionParticles)
+	if (!GetWorld())
 		return;
 	
 	OnProjectileHit.Broadcast(SelfActor, OtherActor, NormalImpulse, Hit);
 
 	ProjectileMovement->StopMovementImmediately();
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, Hit.Location);
-
+	CollisionComp->bReturnMaterialOnMove = true;
+	WeaponFXComponent->PlayImpactFX(Hit);
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), BaseDamage, Hit.Location, DamageRadius, UDamageType::StaticClass(), { GetOwner() }, this, GetController());
-	DrawDebugSphere(GetWorld(), Hit.Location, DamageRadius,24, FColor::Red, false, 3.0f);
+	//DrawDebugSphere(GetWorld(), Hit.Location, DamageRadius,24, FColor::Red, false, 3.0f);
 	
 	Destroy();
 }
