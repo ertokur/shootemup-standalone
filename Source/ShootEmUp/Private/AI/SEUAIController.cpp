@@ -4,10 +4,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SEUAIPerceptionComponent.h"
 
-ASEUAIController::ASEUAIController()
+ASEUAIController::ASEUAIController(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<USEUAIPerceptionComponent>("PerceptionComponent"))
 {
-	AIPerceptionComponent = CreateDefaultSubobject<USEUAIPerceptionComponent>("PerceptionComponent");
-	SetPerceptionComponent(*AIPerceptionComponent);
 }
 
 void ASEUAIController::OnPossess(APawn* InPawn)

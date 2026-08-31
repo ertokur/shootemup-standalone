@@ -14,12 +14,9 @@ class SHOOTEMUP_API ASEUAIController : public AAIController
 	GENERATED_BODY()
 
 public:
-	ASEUAIController();
+	ASEUAIController(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	USEUAIPerceptionComponent* AIPerceptionComponent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FName FocusOnKeyName = "EnemyActor";
 
