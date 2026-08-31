@@ -18,9 +18,9 @@ class SHOOTEMUP_API USEUWeaponComponent : public UActorComponent
 public:
 	USEUWeaponComponent();
 
-	void StartFire();
-	void StopFire();
-	void SwitchWeapon();
+	virtual void StartFire();
+	virtual void StopFire();
+	virtual void SwitchWeapon();
 	void Reload();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -44,35 +44,34 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-private:
-	UPROPERTY()
-	ASEUWeaponBase* CurrentWeapon = nullptr;
-
 	int16 CurrentWeaponIndex = 0;
-
-	bool bIsReloading = false;
-	bool bIsEquipping = false;
 	
 	UPROPERTY()
 	TArray<ASEUWeaponBase*> Weapons;
-
+	
+	UPROPERTY()
+	ASEUWeaponBase* CurrentWeapon = nullptr;
+	
+	void EquipWeapon(int16 WeaponIndex);
+	bool CanFire() const;
+	bool CanEquip() const;
+	
+private:
+	bool bIsReloading = false;
+	bool bIsEquipping = false;
+	
 	void SpawnWeapons();
 	void AttachWeaponToSocket(ASEUWeaponBase* Weapon, const FName& SocketName);
-	void EquipWeapon(int16 WeaponIndex);
 	void PlayAnimMontage(UAnimMontage* AnimMontage);
 	void InitAnimNotifies();
 	
 	void OnEquipFinished(TObjectPtr<USkeletalMeshComponent> SkeletalMeshComp);
 	void OnReloadFinished(TObjectPtr<USkeletalMeshComponent> SkeletalMeshComp);
 	
-	bool CanFire() const;
-	bool CanEquip() const;
 	bool CanReload() const;
 
 	void OnEmptyClip();
 	void OnChangeClip();
-
 	
-
 	FDelegateHandle ClipEmptyDelegateHandle;
 };
