@@ -26,8 +26,17 @@ void ASEURifleWeapon::MakeShot()
 	{
 		FVector ViewLocation;
 		FRotator ViewRotation;
-		Cast<APlayerController>(WeaponOwner->Controller)->GetPlayerViewPoint(ViewLocation, ViewRotation);
-			
+		
+		if (WeaponOwner->IsPlayerControlled())
+		{
+			Cast<APlayerController>(WeaponOwner->Controller)->GetPlayerViewPoint(ViewLocation, ViewRotation);
+		}
+		else
+		{
+			ViewLocation = SkeletalMesh->GetSocketLocation("SOCKET_Muzzle");
+			ViewRotation = SkeletalMesh->GetSocketRotation("SOCKET_Muzzle");
+		}
+		
 		const FTransform SocketTransform = SkeletalMesh->GetSocketTransform("SOCKET_Muzzle");
 
 		const FVector TraceStart = ViewLocation;
@@ -46,14 +55,14 @@ void ASEURifleWeapon::MakeShot()
 		FHitResult HitResult;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params))
 		{
-			//DrawDebugLine(GetWorld(), SocketTransform.GetLocation(),  HitResult.ImpactPoint, FColor::Green, false, 0.5f, 0, 1.0f);
-			//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 16, FColor::Green, false, 0.5, 0, 1.0f);
+			DrawDebugLine(GetWorld(), SocketTransform.GetLocation(),  HitResult.ImpactPoint, FColor::Green, false, 0.5f, 0, 1.0f);
+			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 16, FColor::Green, false, 0.5, 0, 1.0f);
 			WeaponFXComponent->PlayImpactFX(HitResult);
 			MakeDamage(HitResult);
 		}
 		else
 		{
-			//DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), TraceEnd, FColor::Red, false, 0.5f, 0, 1.0f);
+			DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), TraceEnd, FColor::Red, false, 0.5f, 0, 1.0f);
 		}
 
 		DecreaseAmmo();

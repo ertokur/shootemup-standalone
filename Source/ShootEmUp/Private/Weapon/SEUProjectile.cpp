@@ -43,7 +43,7 @@ void ASEUProjectile::OnHit(AActor* SelfActor, AActor* OtherActor, FVector Normal
 	CollisionComp->bReturnMaterialOnMove = true;
 	WeaponFXComponent->PlayImpactFX(Hit);
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), BaseDamage, Hit.Location, DamageRadius, UDamageType::StaticClass(), { GetOwner() }, this, GetController());
-	//DrawDebugSphere(GetWorld(), Hit.Location, DamageRadius,24, FColor::Red, false, 3.0f);
+	DrawDebugSphere(GetWorld(), Hit.Location, DamageRadius,24, FColor::Red, false, 3.0f);
 	
 	Destroy();
 }
