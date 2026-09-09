@@ -14,7 +14,7 @@
 #include "Components/SEUWeaponComponent.h"
 #include "Weapon/SEUWeaponBase.h"
 
-ASEUCharacterBase::ASEUCharacterBase()
+ASEUCharacterBase::ASEUCharacterBase(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	

@@ -23,7 +23,7 @@ class SHOOTEMUP_API ASEUCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ASEUCharacterBase();
+	ASEUCharacterBase(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
@@ -78,6 +78,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Animation)
 	UAnimMontage* DeathMontage;
+	
+	UFUNCTION()
+	virtual void OnDeath();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement,	meta = (ClampMin = 0, ClampMax = 1000))
@@ -88,10 +91,7 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Sprint(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void OnDeath();
-
+	
 	UFUNCTION()
 	void OnHealthChanged(const float OldHealth, const float NewHealth);
 	
